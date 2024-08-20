@@ -10,11 +10,33 @@ import { useRecoilState } from 'recoil';
 import { todolistAtom } from '../../atoms/todolistAtoms';
 import TodoCalendar from '../../components/TodoCalendar/TodoCalendar';
 import RegisterTodoButton from '../../components/RegisterTodoButton/RegisterTodoButton';
+import { modifyTodoAtom, selectedCalendarTodoAtom } from "../../atoms/calendarAtoms";
+import ConfirmButtonTop from "../../components/ConfirmButtonTop/ConfirmButtonTop";
+import SubPageContainer from "../../components/SubPageContainer/SubPageContainer";
 
 function TodoAll(props) {
-    const [ isShow, setShow ] = useState(true);
     const [ todolistAll ] = useRecoilState(todolistAtom);
+    const [ selectedTodo, setSelectedTodo ] = useRecoilState(selectedCalendarTodoAtom);
+    const [ modifyTodo, setModifyTodo ] = useRecoilState(modifyTodoAtom);
+
     const [ calendarData, setCalendarData ] = useState({});
+    const [ isShow, setShow ] = useState(true);
+    const [ submitButtonDisabled, setSubmitButtonDisabled ] = useState(true);
+
+    useEffect(() => {
+        let preTodo = {
+            ...(todolistAll.todolist.filter(todo => 
+            todo.todoId === modifyTodo?.todoId)[0]),
+        };
+        
+        preTodo = {
+            ...preTodo, 
+            todoDateTime: preTodo?.todoDateTime?.replaceAll(" ", "T")
+        };
+        
+        const disabled = JSON.stringify(modifyTodo) === JSON.stringify(preTodo) || !modifyTodo?.title?.trim();
+        setSubmitButtonDisabled(disabled);
+    }, [modifyTodo]);
 
     useEffect(() => {
         const tempCalendarData = {};
@@ -42,17 +64,30 @@ function TodoAll(props) {
 
     }, [todolistAll]);
 
+    const modifyCancel = () => {
+        setSelectedTodo(0);
+    } 
+
+    const modifySubmit = () => {
+        console.log(modifyTodo);
+        setSelectedTodo(0);
+    }
+
 
     return (
         <PageAnimationLayout isShow={isShow} setShow={setShow}>
-            <MainContainer>
+            <SubPageContainer>
                 <div css={s.layout}>
-                    <BackButtonTop setShow={setShow} />
+                    {
+                        selectedTodo === 0 
+                        ? <BackButtonTop setShow={setShow} />
+                        : <ConfirmButtonTop onCancel={modifyCancel} onSubmit={modifySubmit} disabled={submitButtonDisabled} />
+                    }
                     <PageTitle title={MENUS.all.title} color={MENUS.all.color} />
                     <TodoCalendar calendarData={calendarData} />
                     <RegisterTodoButton />
                 </div>
-            </MainContainer>
+            </SubPageContainer>
         </PageAnimationLayout>
     );
 }
