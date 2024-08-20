@@ -50,6 +50,11 @@ public class TodoController {
         log.info("{}", dto);
         return ResponseEntity.ok().body(todoService.modifyTodo(dto));
     }
+
+    @DeleteMapping("/todo/{todoId}")
+    public ResponseEntity<?> delete(@PathVariable int todoId) {
+        return ResponseEntity.ok().body(todoService.deleteTodo(todoId));
+    }
 }
 
 

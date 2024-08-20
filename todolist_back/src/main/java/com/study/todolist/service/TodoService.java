@@ -44,6 +44,10 @@ public class TodoService {
     public int modifyTodo(ReqModifyTodoDto dto) {
         return todoMapper.modify(dto.toEntity());
     }
+
+    public int deleteTodo(int todoId) {
+        return todoMapper.deleteByTodoId(todoId);
+    }
 }
 
 
